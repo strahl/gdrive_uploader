@@ -44,6 +44,8 @@ class MotionUploader:
         config.read(config_file_path)
         
         # GMail account credentials
+        self.username = config.get('gmail', 'user')
+        self.password = config.get('gmail', 'password')
         self.from_name = config.get('gmail', 'name')
         self.sender = config.get('gmail', 'sender')
         
@@ -114,18 +116,12 @@ class MotionUploader:
             if file_path.split('.')[-2][-8:] == 'snapshot':
                 self.recipient = self.recipient + self.snapshotrecipient
 
-            media_link = None
-            for link in doc.link:
-                if 'video.google.com' in link.href:
-                    media_link = link.href
-                    break
-                if 'edit' in link.href:
-		    media_link = link.href[:-21] + 'preview'
-		    break		
-            # Send an email with the link if found
+            thumbnail_link = doc['thumbnailLink'] # unused at the moment
+	    media_link = doc['alternateLink']
+
+            # Send an email with thumbnail and link
             msg = self.message
-            if media_link:
-                msg += '\n\n' + media_link
+            msg += '\n\n' + media_link
             self._send_email(msg)    
 
         if self.delete_after_upload:
